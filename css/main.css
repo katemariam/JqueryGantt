@@ -1,0 +1,152 @@
+body{
+    background-color: #fafafa !important;
+    padding: 20px 10px;
+}
+.content-container {
+    padding: 40px;
+    border-radius: 4px;
+    box-shadow: 0 0 1px 1px #bdbdbd;
+}
+.header {
+    background-color: white;
+}
+
+.cc-red {
+    color: red !important;
+}
+
+a {
+    text-decoration: none !important;
+    color: white !important;
+}
+
+select {
+    width: 260px !important;
+    padding: 1px 5px 5px 5px !important;
+    border-radius: 5px !important; 
+}
+
+#name {
+    font-size: 18px;
+    margin-bottom: 27px;
+}
+
+th{
+    font-size: 14px;
+    padding: 12px 5px !important;
+}
+
+td {
+    font-size: 13px;
+    padding: 8px !important;
+}
+
+.duration {
+    width: 50px;
+    font-size: 12px;
+    border: 1px solid #bebcbc;
+}
+
+.date {
+    font-size: 12px;
+    border: 1px solid #bebcbc;
+}
+
+.table thead th{
+    border-top: 0px !important;
+    border-bottom: 0px !important;
+}
+
+thead {
+    background-color: #f3f3f3;
+}
+
+.table td, .table th {
+    border-top: 0px !important;
+}
+/* Leki  */
+
+.btn-primary {
+    color: #fff !important;
+    background-color: #003d6d !important;
+    border-color: #003d6d !important;
+}
+
+.col-md-6 {
+    flex: 0 0 48% !important;
+}
+
+.cover {
+    background-color: #003d6d;
+    color: white;
+}
+
+.gap {
+    padding: 5px 12px 5px 12px;
+    margin-bottom: 0px;
+}
+.check-container {
+    display: block;
+    font-size : 13px !important;
+    position: relative;
+    padding-left: 21px;
+    padding-right: 0px; 
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.check-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    background-color: #eee;
+}
+.check-container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.check-container input:checked ~ .checkmark {
+    background-color: #48ba58;
+}
+
+.uncheck input:checked ~ .checkmark {
+    background-color: #7c7c7c !important;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.check-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.check-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
