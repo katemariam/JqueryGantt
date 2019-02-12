@@ -1,7 +1,5 @@
 ﻿<?php
 require "db.php";
-
-
 ?>
 
 <!doctype html>
@@ -12,11 +10,11 @@ require "db.php";
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" >
         <link rel="stylesheet" href="../css/style.css" />
       <!--   <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet"> -->
-       <link rel="stylesheet" href="../css/main.css">
-       <link rel="stylesheet" href="../css/frappe-gantt.css">
-       <link rel="stylesheet" href="../bootstrap/bootstrap.min.css" />
-       <link rel="stylesheet" href="../css/jquery.webui-popover.css">
-       <link rel="stylesheet" href="../css/all.css">
+		<link rel="stylesheet" href="../css/main.css">
+		<link rel="stylesheet" href="../css/frappe-gantt.css">
+		<link rel="stylesheet" href="../bootstrap/bootstrap.min.css" />
+		<link rel="stylesheet" href="../css/jquery.webui-popover.css">
+		<link rel="stylesheet" href="../css/all.css">
         <link rel="stylesheet" href="http://taitems.github.com/UX-Lab/core/css/prettify.css" />
 		<style type="text/css">
 			body {
@@ -144,24 +142,21 @@ require "db.php";
             success:(data)=>{
                 var result = $.parseJSON(data);
                 let html = "<b>"+result[2]+"- GANTT CHART</b>";
-                console.log('hi');
                 $("#name").html(html);
                 $("#task_list").html(result[0]);
 
+				var project_id = document.getElementById('project_name').value;
 
-		console.log('Hello Function!');
-
-		var project_id = document.getElementById('project_name').value;
-
-		generateGanttChart(project_id);
+				generateGanttChart(project_id);
             }
         });
     }
 
     function updateTask(id,isChange){
-
+		console.log("UPDATING");
         var duration = $("#duration"+id).val();
         var number = Number(duration);
+		console.log(number);
 
         var start_date = $("#start_date"+id).val();
         var end_date = $("#end_date"+id).val();
@@ -171,19 +166,18 @@ require "db.php";
                 var date = new Date(start_date);
 
                 date.setDate(date.getDate() + days);
-                return date;
+                return date.toString('yyyy-MM-dd');;
             }
 
             var date = new Date();
             var new_date = date.addDays(number);
 
-            end_date=Date.parse(new_date).toString('yyyy-MM-dd');
+			var end_date = moment(new_date).format('YYYY-MM-DD');
         }
 
         if (duration == "" || start_date == "" || end_date == ""){
             alert("All fields are required!");
             return;
-            console.log('yow');
         }       
 
         $.ajax({
@@ -193,15 +187,13 @@ require "db.php";
             success:(data)=>{
                changeProjectName();
             }
-        }); 
+        });  
     }
 
 
 
 		function generateGanttChart(project_id){
-		console.log(project_id);
 		"use strict";
-
 			var today = moment();
 
 			$.ajax({
@@ -216,7 +208,6 @@ require "db.php";
 					for (let i = 0; i < resp.length; i++) {
 						var st = new Date(resp[i].start);
 						var ed = new Date(resp[i].end);
-						// console.log(st.getTime());
 
 						sc.push({
 							name: resp[i].name,
@@ -226,6 +217,7 @@ require "db.php";
 								to: `/Date(${ed.getTime()})/`,
 								label: "",
 								desc: resp[i].name,
+								customClass: "LEKi",
 								dataObj: {myTitle: 'some title', myContent: 'some content' }
 							}]
 						});
@@ -238,12 +230,11 @@ require "db.php";
 						minScale: "weeks",
 						maxScale: "weeks",
 						navigate: "scroll",
-						itemsPerPage: resp.length,
-						dataObj: {myTitle: 'some title', myContent: 'some content' },
+						itemsPerPage: resp.length,/* 
+						dataObj: {myTitle: 'some title', myContent: 'some content' }, */
 						onRender: function(dataObj) {
-						console.log("chart rendered");
-				}
-						
+							console.log("chart rendered");
+						}
 					});
 				},
 				error: (function () {
@@ -251,7 +242,7 @@ require "db.php";
 				})
 
 			});
-$('.gantt').popover({
+/* $('.gantt').popover({
 selector: '.bar',
 title: function() {
 return $(this).data('dataObj').myTitle;
@@ -259,7 +250,7 @@ return $(this).data('dataObj').myTitle;
 content: function() {
 return $(this).data('dataObj').myContent;
 }
-});
+}); */
 
 }
 
