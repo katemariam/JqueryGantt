@@ -4,7 +4,7 @@ require "db.php";
 $array = [];
 
 
-$query = "SELECT project_id, name, start, end, progress FROM `chart_task` WHERE project_id = '".$_GET['pr_id']."'";
+$query = "SELECT project_id, name, start, end, progress FROM `chart_task` WHERE project_id = '".$_GET['pr_id']."' ORDER BY `start`";
 $fetchTasks = mysqli_query($conn, $query);
 
 $tasksCnt = 0;
