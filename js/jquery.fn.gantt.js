@@ -1,4 +1,4 @@
-                // jQuery Gantt Chart
+// jQuery Gantt Chart
 // ==================
 
 // Basic usage:
@@ -20,9 +20,8 @@
 //      });
 
 //
-/*jshint shadow:true, unused:false, laxbreak:true, evil:true*/
-/*globals jQuery, alert*/
-(function ($) {
+/*jshint shadow:true, laxbreak:true, jquery:true, strict:true, trailing:true */
+(function ($, undefined) {
 
     "use strict";
 
@@ -36,7 +35,6 @@
             itemsPerPage: 7,
             months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             dow: ["S", "M", "T", "W", "T", "F", "S"],
-            startPos: new Date(),
             navigate: "buttons",
             scale: "days",
             useCookie: false,
@@ -46,7 +44,6 @@
             onItemClick: function (data) { return; },
             onAddClick: function (data) { return; },
             onRender: function() { return; },
-            onDataLoadFailed: function(data) { return; },
             scrollToToday: true
         };
 
@@ -143,10 +140,13 @@
         // `getWeekOfYear` returns the week number for the year
         Date.prototype.getWeekOfYear = function () {
             var ys = new Date(this.getFullYear(), 0, 1);
-            var sd = new Date(this.getTime());
-            // Find Thursday of this week starting on Monday
-            sd.setDate(sd.getDate() + 4 - (sd.getDay() || 7));
-            return Math.floor(Math.round((sd - ys) / 86400000) / 7) + 1;
+            var sd = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+            if (ys.getDay() > 3) {
+                ys = new Date(sd.getFullYear(), 0, (7 - ys.getDay()));
+            }
+            var daysCount = sd.getDayOfYear() - ys.getDayOfYear();
+            return Math.ceil(daysCount / 7);
+
         };
 
         // `getDaysInMonth` returns the number of days in a month
@@ -204,19 +204,23 @@
         // Core object is responsible for navigation and rendering
         var core = {
             // Return the element whose topmost point lies under the given point
-            // Normalizes for IE
-            elementFromPoint: function (x, y) {
-
-                if (!$.support.boxModel) {
+            // Normalizes for old browsers
+            elementFromPoint: (function(){ // IIFE
+                // version for normal browsers
+                if (document.compatMode === "CSS1Compat") {
+                    return function (x, y) {
+                        x -= window.pageXOffset;
+                        y -= window.pageYOffset;
+                        return document.elementFromPoint(x, y);
+                    };
+                }
+                // version for older browsers
+                return function (x, y) {
                     x -= $(document).scrollLeft();
                     y -= $(document).scrollTop();
-                } else {
-                    x -= window.pageXOffset;
-                    y -= window.pageYOffset;
-                }
-
-                return document.elementFromPoint(x, y);
-            },
+                    return document.elementFromPoint(x, y);
+                };
+            })(),
 
             // **Create the chart**
             create: function (element) {
@@ -238,22 +242,16 @@
             // Here we calculate the number of rows, pages and visible start
             // and end dates once the data is ready
             init: function (element) {
-                try {
-                    element.rowsNum= element.data.length;
-                    element.pageCount = Math.ceil(element.rowsNum / settings.itemsPerPage);
-                    element.rowsOnLastPage = element.rowsNum - (Math.floor(element.rowsNum / settings.itemsPerPage) * settings.itemsPerPage);
+                element.rowsNum = element.data.length;
+                element.pageCount = Math.ceil(element.rowsNum / settings.itemsPerPage);
+                element.rowsOnLastPage = element.rowsNum - (Math.floor(element.rowsNum / settings.itemsPerPage) * settings.itemsPerPage);
 
-                    element.dateStart = tools.getMinDate(element);
-                    element.dateEnd = tools.getMaxDate(element);
+                element.dateStart = tools.getMinDate(element);
+                element.dateEnd = tools.getMaxDate(element);
 
 
-                    /* core.render(element); */
-                    core.waitToggle(element, true, function () { core.render(element); });
-                }
-                catch(e) {
-                    if ( element.data === null || (typeof element.data === 'object' && element.data.length === 0 ) )
-                        settings.onDataLoadFailed($(this).data("dataObj"));
-                }
+                /* core.render(element); */
+                core.waitToggle(element, true, function () { core.render(element); });
             },
 
             // **Render the grid**
@@ -271,7 +269,7 @@
 
                 element.gantt = $('<div class="fn-gantt" />').append(content);
 
-                $(element).html(element.gantt);
+                $(element).empty().append(element.gantt);
 
                 element.scrollNavigation.panelMargin = parseInt($dataPanel.css("margin-left").replace("px", ""), 10);
                 element.scrollNavigation.panelMaxPos = ($dataPanel.width() - $rightPanel.width());
@@ -308,8 +306,8 @@
                             $dataPanel.css({ "margin-left": element.hPosition + "px" });
                             element.scrollNavigation.panelMargin = element.hPosition;
                         }
-                        core.repositionLabel(element);
                     }
+                    core.repositionLabel(element);
                 }
 
                 $dataPanel.css({ height: $leftPanel.height() });
@@ -349,12 +347,8 @@
                 var dataPanel = $('<div class="dataPanel" style="width: ' + width + 'px;"/>');
 
                 // Handle mousewheel events for scrolling the data panel
-                var mousewheelevt = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel";
-                if (document.attachEvent) {
-                    element.attachEvent("on" + mousewheelevt, function (e) { core.wheelScroll(element, e); });
-                } else if (document.addEventListener) {
-                    element.addEventListener(mousewheelevt, function (e) { core.wheelScroll(element, e); }, false);
-                }
+                var wheel = 'onwheel' in element ? 'wheel' : document.onmousewheel !== undefined ? 'mousewheel' : 'DOMMouseScroll';
+                $(element).on(wheel, function (e) { core.wheelScroll(element, e); });
 
                 // Handle click events and dispatch to registered `onAddClick`
                 // function
@@ -441,7 +435,6 @@
 
                 var today = new Date();
                 today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                var holidays = settings.holidays ? settings.holidays.join() : '';
 
                 // Setup the headings based on the chosen `settings.scale`
                 switch (settings.scale) {
@@ -493,13 +486,11 @@
                             var rgetDay = rday.getDay();
                             var getDay = day.getDay();
                             var day_class = dowClass[rgetDay];
-                            var getTime = day.getTime();
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
+                            if (tools.isHoliday(rday)) {
                                 day_class = "holiday";
                             }
                             if (rgetDay !== getDay) {
-
-                                var day_class2 = (today - day === 0) ? ' today' : (holidays.indexOf(getTime) > -1) ? "holiday" : dowClass[getDay];
+                                var day_class2 = (today - day === 0) ? "today" : tools.isHoliday( day.getTime() ) ? "holiday" : dowClass[getDay];
 
                                 dayArr.push('<div class="row date ' + day_class2 + '" '
                                         + ' style="width: ' + tools.getCellSize() * hoursInDay + 'px;"> '
@@ -517,12 +508,14 @@
                                     + day_class
                                     + '" id="dh-'
                                     + rday.getTime()
-                                    + '"  offset="' + i * tools.getCellSize() + '"  repdate="' + rday.getRepDate() + '"><div class="fn-label">'
+                                    + '"  offset="' + i * tools.getCellSize() + '" repdate="' + rday.getRepDate() + '"><div class="fn-label">'
                                     + rday.getHours()
                                     + '</div></div>');
                         }
+
+
                         // Last year
-                       yearArr.push(
+                        yearArr.push(
                             '<div class="row header year" style="width: '
                             + tools.getCellSize() * daysInYear + 'px;"><div class="fn-label">'
                             + year
@@ -537,7 +530,7 @@
 
                         var day_class = dowClass[day.getDay()];
 
-                        if (holidays.indexOf((new Date(day.getFullYear(), day.getMonth(), day.getDate())).getTime()) > -1) {
+                        if ( tools.isHoliday(day) ) {
                             day_class = "holiday";
                         }
 
@@ -702,7 +695,6 @@
                             }
                             daysInYear++;
 
-
                             // Fill months
                             if (rday.getMonth() !== month) {
                                 monthArr.push(
@@ -718,7 +710,7 @@
 
                             var getDay = rday.getDay();
                             var day_class = dowClass[getDay];
-                            if (holidays.indexOf((new Date(rday.getFullYear(), rday.getMonth(), rday.getDate())).getTime()) > -1) {
+                            if ( tools.isHoliday(rday) ) {
                                 day_class = "holiday";
                             }
 
@@ -729,7 +721,6 @@
                                     + ' id="dw-' + tools.genId(rday.getTime()) + '"  repdate="' + rday.getRepDate() + '"> '
                                     + ' <div class="fn-label">' + settings.dow[getDay] + '</div></div>');
                         } //for
-
 
                         // Last year
                         yearArr.push(
@@ -950,7 +941,7 @@
                         })
                         .data("dataObj", dataObj);
 
-                if (desc) {
+                /* if (desc) {
                     bar
                       .mouseover(function (e) {
                           var hint = $('<div class="fn-gantt-hint" />').html(desc);
@@ -966,7 +957,7 @@
                           $(".fn-gantt-hint").css("left", e.pageX);
                           $(".fn-gantt-hint").css("top", e.pageY + 15);
                       });
-                }
+                } */
                 bar.click(function (e) {
                     e.stopPropagation();
                     settings.onItemClick($(this).data("dataObj"));
@@ -1010,21 +1001,7 @@
                         return "";
                     }
                 };
-				var darkerColor = function(colStr) {
-					try {
-						colStr = colStr.replace('rgb(','').replace(')','');
-						var rgbArr = colStr.split(',');
-						var R = parseInt(rgbArr[0]);
-						var G = parseInt(rgbArr[1]);
-						var B = parseInt(rgbArr[2]);
-						R = R-Math.round(parseInt(R)/7);
-						G = G-Math.round(parseInt(G)/7);
-						B = B-Math.round(parseInt(B)/7);
-						return 'rgb('+R+', '+G+', '+B+')';
-					} catch (err) {
-						return '';
-					}
-				};
+                // Loop through the values of each data element and set a row
                 $.each(element.data, function (i, entry) {
                     if (i >= element.pageNum * settings.itemsPerPage && i < (element.pageNum * settings.itemsPerPage + settings.itemsPerPage)) {
 
@@ -1040,15 +1017,12 @@
                                     var dTo = tools.genId(tools.dateDeserialize(day.to).getTime(), element.scaleStep);
                                     var to = $(element).find('#dh-' + dTo);
 
-                                    console.log(dFrom, dTo);
-
                                     var cFrom = from.attr("offset");
                                     var cTo = to.attr("offset");
                                     var dl = Math.floor((cTo - cFrom) / tools.getCellSize()) + 1;
 
                                     _bar = core.createProgressBar(
                                                 dl,
-                                                day.id ? day.id : "",
                                                 day.customClass ? day.customClass : "",
                                                 day.desc ? day.desc : "",
                                                 day.label ? day.label : "",
@@ -1092,7 +1066,6 @@
 
                                     _bar = core.createProgressBar(
                                              dl,
-                                             day.id ? day.id : "",
                                              day.customClass ? day.customClass : "",
                                              day.desc ? day.desc : "",
                                              day.label ? day.label : "",
@@ -1133,7 +1106,6 @@
 
                                     _bar = core.createProgressBar(
                                         dl,
-                                        day.id ? day.id : "",
                                         day.customClass ? day.customClass : "",
                                         day.desc ? day.desc : "",
                                         day.label ? day.label : "",
@@ -1160,7 +1132,6 @@
                                     var dl = Math.floor(((dTo / 1000) - (dFrom / 1000)) / 86400) + 1;
                                     _bar = core.createProgressBar(
                                                 dl,
-                                                day.id ? day.id : "",
                                                 day.customClass ? day.customClass : "",
                                                 day.desc ? day.desc : "",
                                                 day.label ? day.label : "",
@@ -1193,25 +1164,20 @@
             navigateTo: function (element, val) {
                 var $rightPanel = $(element).find(".fn-gantt .rightPanel");
                 var $dataPanel = $rightPanel.find(".dataPanel");
-                $dataPanel.click = function () {
-                    alert(arguments.join(""));
-                };
                 var rightPanelWidth = $rightPanel.width();
                 var dataPanelWidth = $dataPanel.width();
-
+                var shift = function () {
+                  core.repositionLabel(element);
+                };
                 switch (val) {
                     case "begin":
-                        $dataPanel.animate({
-                            "margin-left": "0px"
-                        }, "fast", function () { core.repositionLabel(element); });
+                        $dataPanel.animate({ "margin-left": "0px" }, "fast", shift);
                         element.scrollNavigation.panelMargin = 0;
                         break;
                     case "end":
                         var mLeft = dataPanelWidth - rightPanelWidth;
                         element.scrollNavigation.panelMargin = mLeft * -1;
-                        $dataPanel.animate({
-                            "margin-left": "-" + mLeft + "px"
-                        }, "fast", function () { core.repositionLabel(element); });
+                        $dataPanel.animate({ "margin-left": "-" + mLeft + "px" }, "fast", shift);
                         break;
                     case "now":
                         if (!element.scrollNavigation.canScroll || !$dataPanel.find(".today").length) {
@@ -1226,9 +1192,7 @@
                         } else if (val < max_left) {
                             val = max_left;
                         }
-                        $dataPanel.animate({
-                            "margin-left": val + "px"
-                        }, "fast", core.repositionLabel(element));
+                        $dataPanel.animate({ "margin-left": val + "px" }, "fast", shift);
                         element.scrollNavigation.panelMargin = val;
                         break;
                     default:
@@ -1236,9 +1200,7 @@
                         var cur_marg = $dataPanel.css("margin-left").replace("px", "");
                         var val = parseInt(cur_marg, 10) + val;
                         if (val <= 0 && val >= max_left) {
-                            $dataPanel.animate({
-                                "margin-left": val + "px"
-                            }, "fast", core.repositionLabel(element));
+                            $dataPanel.animate({ "margin-left": val + "px" }, "fast", shift);
                         }
                         element.scrollNavigation.panelMargin = val;
                         break;
@@ -1333,10 +1295,19 @@
 
             // Move chart via mousewheel
             wheelScroll: function (element, e) {
-				e.preventDefault(); // e is a jQuery Event
-                var delta = e.detail ? e.detail * (-50) : e.wheelDelta / 120 * 50;
+                e.preventDefault(); // e is a jQuery Event
 
-                core.scrollPanel(element, delta);
+                // attempts to normalize scroll wheel velocity
+                var delta = ( 'detail' in e ? e.detail :
+                              'wheelDelta' in e.originalEvent ? - 1/120 * e.originalEvent.wheelDelta :
+                              e.originalEvent.deltaY ? e.originalEvent.deltaY / Math.abs(e.originalEvent.deltaY) :
+                              e.originalEvent.detail );
+
+                // simpler normalization, ignoring per-device/browser/platform acceleration & semantic variations
+                //var delta = e.detail || - (e = e.originalEvent).wheelData || e.deltaY /* || e.deltaX */ || e.detail;
+                //delta = ( delta / Math.abs(delta) ) || 0;
+
+                core.scrollPanel(element, -50 * delta);
 
                 clearTimeout(element.scrollNavigation.repositionDelay);
                 element.scrollNavigation.repositionDelay = setTimeout(core.repositionLabel, 50, element);
@@ -1762,6 +1733,7 @@
             }
 
             switch (settings.scale) {
+                //case "hours": this.headerRows = 5; this.scaleStep = 8; break;
                 case "hours": this.headerRows = 5; this.scaleStep = 1; break;
                 case "weeks": this.headerRows = 3; this.scaleStep = 13; break;
                 case "months": this.headerRows = 2; this.scaleStep = 14; break;
