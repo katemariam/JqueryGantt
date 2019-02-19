@@ -76,7 +76,7 @@ require "db.php";
 					<div style= "position: relative; top:-25px; left:380px;">  			
 						<div class="btn-group btn-group-toggle" data-toggle="buttons">
                 		<label class="project btn btn-sm btn-info">
-                    		<a href="./test02.php">
+                    		<a href="test_guil.php" onclick="window.location.href = 'test_guil.php';">
                         		<input type="radio" name="options"> Project
                     		</a>
                 		</label>

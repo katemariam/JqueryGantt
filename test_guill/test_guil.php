@@ -100,7 +100,7 @@ $update = $_GET["update"];
                     		</a>
                 		</label>
                 		<label class="employee btn btn-sm btn-info">
-                    		<a href=" ">
+                    		<a href="#"  onclick="window.location.href = 'test_guill_emp.php';">
                         		<input type="radio" name="options"> Employee
                     		</a>
                 		</label>
