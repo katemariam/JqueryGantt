@@ -2,7 +2,7 @@
     require "./db.php";
     
     $project_id = $_GET["project_id"];
-    $sql = "SELECT * FROM chart_task JOIN project_tbl ON chart_task.project_id = project_tbl.project_id WHERE chart_task.project_id = $project_id";
+    $sql = "SELECT * FROM chart_task JOIN project_tbl ON chart_task.project_id = project_tbl.project_id WHERE chart_task.project_id = $project_id ORDER BY `start`";
     
     $all_tasks = $conn->query($sql);
     $output = "";

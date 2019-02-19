@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 12, 2019 at 05:03 AM
+-- Generation Time: Feb 14, 2019 at 03:43 AM
 -- Server version: 10.1.31-MariaDB
 -- PHP Version: 7.2.3
 
@@ -42,15 +42,37 @@ CREATE TABLE `chart_task` (
 --
 
 INSERT INTO `chart_task` (`id`, `project_id`, `name`, `start`, `end`, `progress`) VALUES
-(1, 1, 'Demolition', '2019-02-02', '2019-02-13', 100),
-(2, 2, 'Excavation', '2019-02-13', '2019-02-12', 100),
+(1, 1, 'Demolition', '2019-02-03', '2019-02-17', 100),
+(2, 2, 'Excavation', '2019-02-10', '2019-02-14', 100),
 (3, 1, 'Concrete', '2019-02-10', '2019-02-28', 100),
 (4, 2, 'Structure', '2019-02-04', '2019-02-26', 100),
 (5, 2, 'Lock Up', '2019-02-18', '2019-02-21', 100),
 (6, 1, 'Internal Works', '2019-02-19', '2019-02-25', 100),
-(7, 2, 'Hand over', '2019-02-23', '2019-02-25', 100),
-(8, 1, 'Lophils', '2019-02-08', '2019-02-27', 100),
-(9, 2, 'DG Test', '2019-02-02', '2019-02-15', 100);
+(7, 2, 'Hand over', '2019-02-21', '2019-02-25', 100),
+(8, 1, 'Lophils', '2019-02-07', '2019-02-20', 100),
+(9, 2, 'DG Test', '2019-02-01', '2019-02-07', 100);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_tbl`
+--
+
+CREATE TABLE `employee_tbl` (
+  `employee_id` int(12) NOT NULL,
+  `employee_name` varchar(50) NOT NULL,
+  `hours` varchar(50) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `employee_tbl`
+--
+
+INSERT INTO `employee_tbl` (`employee_id`, `employee_name`, `hours`, `start_date`, `end_date`) VALUES
+(1, 'Kate Mariam Reodica', '8', '0000-00-00', '0000-00-00'),
+(2, 'Levie Anne Marinas', '8', '0000-00-00', '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -83,6 +105,12 @@ ALTER TABLE `chart_task`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `employee_tbl`
+--
+ALTER TABLE `employee_tbl`
+  ADD PRIMARY KEY (`employee_id`);
+
+--
 -- Indexes for table `project_tbl`
 --
 ALTER TABLE `project_tbl`
@@ -97,6 +125,12 @@ ALTER TABLE `project_tbl`
 --
 ALTER TABLE `chart_task`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `employee_tbl`
+--
+ALTER TABLE `employee_tbl`
+  MODIFY `employee_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `project_tbl`

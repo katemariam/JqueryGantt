@@ -241,7 +241,7 @@
 }
 .fn-gantt .navigate {
     border-top: 1px solid #DDD;
-    padding: 10px 0 10px 225px;
+    padding: 10px 0 10px 160px;
 }
 
 .fn-gantt .navigate .nav-slider {
@@ -430,7 +430,7 @@
 }
 
 .popover {
-    width: 100% !important;
+    
     border: 0px !important;
     box-shadow: 2px 3px 9px -1px rgba(0,0,0,0.75) !important;
 }
@@ -450,14 +450,14 @@
     font-size: 12px !important; 
     padding: 3px !important;
     width: 50px !important; 
-    border-radius: 0 !important;
+    border-radius: 4px !important;
 }
 
 .small-btns {
     font-size: 12px !important; 
     padding: 3px !important;
     width: 90px !important; 
-    border-radius: 0 !important;
+    border-radius: 4px !important;
 }
 
 
@@ -474,10 +474,12 @@
     width: 120px;
     height: 20px;
     font-size: 11px;
+     background:white;
+      border:1px solid #ccc;
 }
 
 .small-select {
-    width: 120px !important;
+    width: 135px !important;
     height: 25px;
     font-size: 11px;
 }
@@ -492,4 +494,30 @@
 
 .left-element {
     margin-bottom: 40px;
+}
+
+.border{
+    border-radius: 10px;
+}
+
+.small-text, {
+    font-size: 0.8em !important;
+}
+
+.form-group {
+    margin-bottom: 10px !important;
+}
+
+.chosen-choices {
+    border: 1px solid #CED4DA !important;
+    border-radius: .2rem;
+}
+
+.chosen-drop, .chosen-choices, .chosen-container {
+    box-shadow: 0 !important;
+}
+
+.input-group-text {
+    border: 0 !important;
+    background: #fff !important;
 }

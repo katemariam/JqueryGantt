@@ -127,21 +127,81 @@ require "db.php";
 				<label class="category und"> To </label> 
 			</div>
 			<div class="col-md-6" style="padding:0px;">
-				<select name="worker" id="worker" class="bot small-select">
-					<option value=" "> Select Employee</option><br>
+			<select name="project_name" id="project_name" class="bot small-select" onchange="changeEmployee()">
+   				 	<option value="">Select Employee</option>
+
+   				 	<?php
+
+						$query = "SELECT employee_id, employee_name FROM `employee_tbl`";
+						$fetchEmp = mysqli_query($conn, $query);
+
+
+						$EmpCnt = 0;
+						if($fetchEmp){
+
+						$EmpCnt = mysqli_num_rows($fetchEmp);
+						if($EmpCnt != 0) {
+
+						while($row = mysqli_fetch_array($fetchEmp)){
+						echo "<option value='".$row['employee_id']."'>" . $row['employee_name']. "</option>";
+						}
+
+						} else {
+						echo "No result found.";
+						}
+						} else {
+						echo mysqli_error($conn);
+						}
+						
+
+					?>
+				
+
 				</select>
-				<input class="small bot" type="text" size="2"><br>
-				<input class="small-date bot" type="date"><br>
+				<input class=" bot" type="text" size="5" value="<?php
+            		$selectRecord = "SELECT * FROM employee_tbl";
+            		$selectRecordResult = $conn->query($selectRecord);
+
+            				if($selectRecordResult -> num_rows > 0) {
+
+                					while($Recordtbl = $selectRecordResult->fetch_assoc()) {
+                						echo $Recordtbl['hours'];
+                						}
+
+            				}
+        			 else{
+           		 		echo "No entries";
+       				}
+        			?> "
+        			/>	
+        			 <br>
+
+				<input class="small-date bot" type="date" value="
+				<!-- <?php
+            		$selectRecord = "SELECT *  FROM chart_task";
+            		$selectRecordResult = $conn->query($selectRecord);
+
+            				if($selectRecordResult -> num_rows > 0) {
+
+                					while($Recordtbl = $selectRecordResult->fetch_assoc()) {
+                						echo $Recordtbl['start'];
+                						}
+
+            				}
+        			 else{
+           		 		echo "No entries";
+       				}
+        			?> --> 02/18/2019" ><br>
 				<input class="small-date bot" type="date"><br>
 			</div>
 		</div> 
 		<br>
 		<div class="row">
-			<div class="col-md-6" style="padding-right:0px;">
+			<div class="col-md-6" style="padding-right:0px; margin-top: -10px;">
 				<button type="button" class="btn btn-success btn-sm small-btn">Save</button>
-				<button type="button" class="btn btn-basic btn-sm small-btn">Cancel</button>
+				<button type="button" class="btn btn-danger btn-sm small-btn">Cancel</button>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-6" style=" margin-top: -10px;">
 				<button type="button" class="btn btn-info btn-sm small-btns">+ Add Worker</button>
 			</div>
 		</div>
@@ -324,13 +384,14 @@ require "db.php";
                             '<div class="arrow"></div>',
                             '<div class="popover-header" style="background-color:#337ab7">',
                             '<button id="closepopover" type="button" class="float-right close btn-sm btn" >&nbsp;&times;</button>',
-                            '<button type="button" class="float-right small-btn btn-check btn btn-sm btn-danger">Delete</button>',
-                            '<p style="margin:0px; font-size: 14px">Excavation</p>',
+                            '<button type="button" class="float-right btn btn-danger btn-sm small-btn">Delete</button>',	
+                            '<p style="margin:0px; font-size: 14px">Lock up</p>',
                             '<p style="margin:0px; font-size: 12px">Workforce Detail</p>',
                             '</div>',
                             '<div class="webui-popover-content"></div>',
                             '</div>'].join(''),
-                        	html: true
+                        	html: true,
+                        	container: 'body'
 						});
 						
 						/* popover_link.click();	 */
